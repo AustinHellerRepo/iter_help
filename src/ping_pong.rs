@@ -15,14 +15,14 @@ macro_rules! ping_pong {
             }
             pub trait [<CanPingPong $index_type_number>]<TOutput, $([<$index_variant_name>]),*, TFunc>
             where
-                TFunc: Fn($(Option<&[<$index_variant_name>]>,)*) -> Result<([<PingPongResponse $index_type_number>], Option<TOutput>), Box<dyn Error>>,
+                TFunc: Fn($(Option<&[<$index_variant_name>]>,)*) -> Result<([<PingPongResponse $index_type_number>], Vec<TOutput>), Box<dyn Error>>,
             {
                 fn ping_pong(self, func: TFunc) -> Result<Vec<TOutput>, Box<dyn Error>>;
             }
 
             impl<$($index_variant_name),*, TOutput, TFunc> [<CanPingPong $index_type_number>]<TOutput, $($index_variant_name),*, TFunc> for ($(Vec<$index_variant_name>),*)
             where
-                TFunc: Fn($(Option<&[<$index_variant_name>]>,)*) -> Result<([<PingPongResponse $index_type_number>], Option<TOutput>), Box<dyn Error>>,
+                TFunc: Fn($(Option<&[<$index_variant_name>]>,)*) -> Result<([<PingPongResponse $index_type_number>], Vec<TOutput>), Box<dyn Error>>,
             {
                 fn ping_pong(self, func: TFunc) -> Result<Vec<TOutput>, Box<dyn Error>> {
                     return ($(self.$index_variant_index.iter(),)*).ping_pong(func);
@@ -31,7 +31,7 @@ macro_rules! ping_pong {
 
             impl<$($index_variant_name),*, TOutput, TFunc> [<CanPingPong $index_type_number>]<TOutput, $($index_variant_name),*, TFunc> for ($(Iter<'_, $index_variant_name>,)*)
             where
-                TFunc: Fn($(Option<&[<$index_variant_name>]>,)*) -> Result<([<PingPongResponse $index_type_number>], Option<TOutput>), Box<dyn Error>>,
+                TFunc: Fn($(Option<&[<$index_variant_name>]>,)*) -> Result<([<PingPongResponse $index_type_number>], Vec<TOutput>), Box<dyn Error>>,
             {
                 fn ping_pong(self, func: TFunc) -> Result<Vec<TOutput>, Box<dyn Error>> {
                     $(
@@ -41,10 +41,8 @@ macro_rules! ping_pong {
 
                     let mut outputs = Vec::with_capacity($([<iter $index_variant_index>].len() + )* 0);
                     while $([<next $index_variant_index>].is_some() || )* false {
-                        let (response, output) = (func)($([<next $index_variant_index>],)*)?;
-                        if let Some(output) = output {
-                            outputs.push(output);
-                        }
+                        let (response, mut output) = (func)($([<next $index_variant_index>],)*)?;
+                        outputs.append(&mut output);
 
                         match response {
                             [<PingPongResponse $index_type_number>]::Single(index) => {
@@ -180,25 +178,25 @@ mod tests {
         let names = (chicago, new_york).ping_pong(|chicago, new_york| {
             if let (Some(chicago), Some(new_york)) = (chicago, new_york) {
                 if chicago.1 < new_york.1 {
-                    Ok((PingPongResponseTwo::Single(PingPongIteratorIndexTwo::T1), Some(chicago.0)))
+                    Ok((PingPongResponseTwo::Single(PingPongIteratorIndexTwo::T1), vec![chicago.0]))
                 }
                 else if chicago.1 > new_york.1 {
-                    Ok((PingPongResponseTwo::Single(PingPongIteratorIndexTwo::T2), Some(new_york.0)))
+                    Ok((PingPongResponseTwo::Single(PingPongIteratorIndexTwo::T2), vec![new_york.0]))
                 }
                 else {
                     if chicago.0 < new_york.0 {
-                        Ok((PingPongResponseTwo::Single(PingPongIteratorIndexTwo::T1), Some(chicago.0)))
+                        Ok((PingPongResponseTwo::Single(PingPongIteratorIndexTwo::T1), vec![chicago.0]))
                     }
                     else {
-                        Ok((PingPongResponseTwo::Single(PingPongIteratorIndexTwo::T2), Some(new_york.0)))
+                        Ok((PingPongResponseTwo::Single(PingPongIteratorIndexTwo::T2), vec![new_york.0]))
                     }
                 }
             }
             else if let Some(chicago) = chicago {
-                Ok((PingPongResponseTwo::Single(PingPongIteratorIndexTwo::T1), Some(chicago.0)))
+                Ok((PingPongResponseTwo::Single(PingPongIteratorIndexTwo::T1), vec![chicago.0]))
             }
             else if let Some(new_york) = new_york {
-                Ok((PingPongResponseTwo::Single(PingPongIteratorIndexTwo::T2), Some(new_york.0)))
+                Ok((PingPongResponseTwo::Single(PingPongIteratorIndexTwo::T2), vec![new_york.0]))
             }
             else {
                 Err("Unexpected missing both types.".into())

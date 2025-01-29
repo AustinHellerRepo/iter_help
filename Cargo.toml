@@ -1,6 +1,6 @@
 [package]
 name = "iter_help"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Austin Heller"]
 description = "This library provides helpful tools for iterating over collections of data."
