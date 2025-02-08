@@ -10,7 +10,7 @@ This library provides helpful structures, traits, and functionality for iterator
 ## Examples
 
 Visual:
-
+```
  list 1   list 2
     A  ->  B
            |
@@ -19,6 +19,7 @@ Visual:
         |  |
         |  V
         -- D
+```
 
   So long as they are both sorted
     the resulting list will be in order.
