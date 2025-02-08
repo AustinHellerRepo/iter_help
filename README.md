@@ -23,7 +23,7 @@ Visual:
 
   So long as they are both sorted
     the resulting list will be in order.
-  You can also do this for many differt lists
+  You can also do this for many different lists
     as a tuple of lists.
 
 TODO create code example
