@@ -9,4 +9,21 @@ This library provides helpful structures, traits, and functionality for iterator
 
 ## Examples
 
-TODO
+Visual:
+```
+ list 1   list 2
+    A  ->  B
+           |
+           V
+    E  <-  C
+        |  |
+        |  V
+        -- D
+```
+
+  So long as they are both sorted
+    the resulting list will be in order.
+  You can also do this for many different lists
+    as a tuple of lists.
+
+TODO create code example
